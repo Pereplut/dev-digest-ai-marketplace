@@ -180,7 +180,13 @@ within run-to-run noise, the result is recorded as "within noise".
 
 | # | Date | Change | Cases | Before | After | Verdict |
 |---|---|---|---|---|---|---|
-| 1 | — | Planned: remove instructions duplicated between agent prompts and the skills they load (start with the EARS rules repeated in `spec-creator` and `spec-authoring`) | all | baseline | — | — |
+| 1 | 2026-10-16 | Remove from `spec-creator` the passages its always-loaded skill `spec-authoring` already states: the bar, hard rules 3–4 in full, *Where the spec goes*, the checker's rule list, the clarification-question rules, a quality-bar line. Agent 10,302 → 9,003 bytes (−13%, ≈340 tokens). The plan assumed the EARS rules were duplicated; they were not, the agent already pointed to the skill. | `spec-creator-writes-spec-only`, 3 runs, `claude-opus-5-5`, `--ablation none` | 9 runs: median **$0.467** ($0.421–0.510), output 10.8–14.0k, tools 16–19, `spec-quality` 5/6, boundary line 5/9, score 0.875 | 3 runs: median **$0.482** ($0.475–0.503), output 11.4–12.2k, tools 17–18, `spec-quality` 1/3, boundary line 1/3, score 0.80 | **Within noise on cost; reverted.** The theoretical saving (≈340 cached tokens per subagent turn, ≈$0.002 a run) is far below the ±$0.04 run-to-run spread. Quality moved the wrong way, not significantly at n=3, but with no gain to weigh it against. $1.46 to measure. |
+
+What it shows about where the cost is: a spec-creator run is ≈12k output tokens and ≈110k cache reads.
+The agent prompt is ≈2.5k of those input tokens. Output dominates the cost (the spec plus a ~7 KB report), and
+so does the context the agent reads (repo files, the 11.5 KB skill, the template). The next optimization
+worth measuring targets output: a shorter report format (it repeats the AC table that is already in the
+spec file), not a shorter prompt.
 
 ## Known gaps
 
