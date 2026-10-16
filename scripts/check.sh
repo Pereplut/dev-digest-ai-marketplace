@@ -32,6 +32,10 @@ fi
 step "manifest consistency"
 node scripts/check-manifests.mjs || fail=1
 
+step "eval suites (schema) and fixtures (up to date)"
+node scripts/check-evals.mjs || fail=1
+node scripts/build-eval-fixtures.mjs --check || fail=1
+
 step "portability + English-only lint"
 node scripts/lint-portability.mjs || fail=1
 

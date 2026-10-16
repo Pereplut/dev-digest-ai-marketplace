@@ -114,14 +114,14 @@ name wherever the field expects a plugin-scoped reference.
 | AC-7 | `scripts/lint-portability.mjs`, plus a unit test with planted Cyrillic text |
 | AC-8 | Portability lint rule (relative plugin paths outside `${...}` are rejected) |
 | AC-9 | Install into a foreign repo (Phase 7) |
-| AC-10 | Behavior eval `planner-reads-project-facts` |
+| AC-10 | Behavior evals `planner-reads-project-facts` and `planner-refuses-draft-spec` |
 | AC-11 | Behavior eval `no-verify-command` |
 | AC-12 | `scripts/check.sh` frontmatter check |
 | AC-13 | `scripts/check.sh` frontmatter check |
 | AC-14 | Behavior eval `spec-creator-writes-spec-only` |
 | AC-15 | Behavior eval `arch-review-severity` |
 | AC-16 | Behavior eval `run-plan-gate-order` |
-| AC-17 | Behavior eval `run-plan-optional-stages` |
+| AC-17 | Behavior evals `run-plan-optional-stages` (`--tests --no-docs`) and `run-plan-gate-order` (defaults) |
 | AC-18 | `scripts/check.sh` frontmatter check, and negative eval `retro-not-auto` |
 | AC-19 | Behavior eval `spec-and-plan-locations` |
 | AC-20 | Unit test for `insights_for.py` discovery |
@@ -136,3 +136,4 @@ name wherever the field expects a plugin-scoped reference.
 | Initiation | 2026-10-16 | Lab notes reviewed; three research runs (local inventory, upstream branches, official plugin docs) |
 | Planning | 2026-10-16 | Spec written; approved by owner 2026-10-16 |
 | Implementation | 2026-10-16 | Extraction done: 4 plugins (8 agents, 7 skills, 3 scripts); repo docs and tooling; check.sh green; local --plugin-dir load verified. Next: site, CI, evals |
+| Implementation | 2026-10-16 | Catalog site and CI pushed; validate (incl. Playwright 15/15) green on GitHub. Eval suite written: 10 cases in `plugins/sdd-engineering/evals/`, linted by `scripts/check-evals.mjs`; not yet run (costs tokens) |

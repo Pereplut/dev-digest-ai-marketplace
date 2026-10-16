@@ -166,6 +166,14 @@ too, add rules like these to your project's `.claude/settings.json`:
 - `workflow-retro` deep mode reads Claude Code transcripts under `~/.claude/projects/`, only after
   you opt in.
 
+## Evals
+
+`evals/` holds the plugin's behaviour suite for `claude plugin eval`: 10 cases over a small fixture
+repository, including negative cases (an unrelated request must not start the workflow; the retro
+never runs on its own). It is for maintainers. Using the plugin never runs it. How to run it and
+the measured costs are in
+[COST-BASELINE](https://github.com/Pereplut/dev-digest-ai-marketplace/blob/main/docs/COST-BASELINE.md).
+
 ## Design notes
 
 [docs/agents-notes.md](docs/agents-notes.md) records the judgement calls made when generalizing

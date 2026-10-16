@@ -12,6 +12,9 @@ on:
       case:
         description: Case name glob (empty = all cases)
         default: ''
+      tag:
+        description: Case tag, e.g. negative or heavy (empty = all)
+        default: ''
       runs:
         description: Runs per case
         default: '3'
@@ -39,17 +42,23 @@ jobs:
           node-version: 22
       - name: Install Claude Code CLI
         run: npm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+      - name: Install the OS sandbox (cases that grant Bash need it)
+        run: sudo apt-get update -q && sudo apt-get install -y -q bubblewrap socat
       - name: claude plugin eval
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PLUGIN: ${{ inputs.plugin }}
           CASE: ${{ inputs.case }}
+          TAG: ${{ inputs.tag }}
           RUNS: ${{ inputs.runs }}
           MAX_COST: ${{ inputs.max_cost_usd }}
           MODEL: ${{ inputs.model }}
         run: |
-          args=(--trust-plugin --no-publish --runs "$RUNS" --max-cost-usd "$MAX_COST" --json results.json --report report.html)
+          # --scaffold: every case seeds its workspace with fixture.sh, generated in this repo by
+          # scripts/build-eval-fixtures.mjs from evals/fixtures/ (we authored them; see docs/COST-BASELINE.md).
+          args=(--trust-plugin --scaffold --no-publish --runs "$RUNS" --max-cost-usd "$MAX_COST" --json results.json --report report.html)
           [[ -n "$CASE" ]] && args+=(--case "$CASE")
+          [[ -n "$TAG" ]] && args+=(--tag "$TAG")
           [[ -n "$MODEL" ]] && args+=(--model "$MODEL")
           # Install from this checkout so dependencies resolve exactly as they do for users,
           # then evaluate the installed plugin (eval resolves `plugin@marketplace` ids).

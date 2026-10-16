@@ -1,0 +1,7 @@
+{
+  "fixture": "orders-api",
+  "git": true,
+  "after_commit": [
+    "arch-change"
+  ]
+}

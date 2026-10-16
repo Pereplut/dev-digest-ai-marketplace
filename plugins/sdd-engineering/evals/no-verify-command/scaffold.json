@@ -1,0 +1,6 @@
+{
+  "fixture": "orders-api",
+  "overlays": [
+    "no-verify"
+  ]
+}

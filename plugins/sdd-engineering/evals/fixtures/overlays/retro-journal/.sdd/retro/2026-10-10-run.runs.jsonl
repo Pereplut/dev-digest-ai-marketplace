@@ -1,0 +1,3 @@
+{"order":1,"agent":"sdd-engineering:implementer","label":"implement 0001","tokens":182000,"tools":61,"ms":540000,"parallel_with":[],"outcome":"ok"}
+{"order":2,"agent":"sdd-engineering:plan-verifier","label":"gate","tokens":41000,"tools":19,"ms":120000,"parallel_with":[],"outcome":"2 Missing"}
+{"order":3,"agent":"sdd-engineering:implementer","label":"fix round 1","tokens":150000,"tools":48,"ms":470000,"parallel_with":[],"outcome":"ok"}

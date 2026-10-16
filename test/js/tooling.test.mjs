@@ -122,3 +122,24 @@ test('check-deps-released: needs a satisfying tag per dependency', () => {
   assert.deepEqual(unmet(manifest, ['base--v1.3.1']), []);
   assert.deepEqual(unmet({}, []), []);
 });
+
+test('build-eval-fixtures: scaffold writes base + overlays, commits, then applies the uncommitted change', async () => {
+  const { renderScaffold } = await import('../../scripts/build-eval-fixtures.mjs');
+  const { execFileSync } = await import('node:child_process');
+  const fx = mkdtempSync(join(tmpdir(), 'fx-'));
+  put(fx, 'base/a.txt', "it's base\n");
+  put(fx, 'base/dir/b.txt', 'b\n');
+  put(fx, 'overlays/over/a.txt', 'overlaid\n');
+  put(fx, 'overlays/late/dir/b.txt', 'changed after commit\n');
+  const script = renderScaffold(fx, { fixture: 'base', overlays: ['over'], git: true, after_commit: ['late'] }, 'case-x');
+  assert.match(script, /^#!\/usr\/bin\/env bash\n# GENERATED/);
+  // The runner keeps the script in the case directory, outside the workspace it seeds.
+  const caseDir = mkdtempSync(join(tmpdir(), 'case-'));
+  const ws = mkdtempSync(join(tmpdir(), 'ws-'));
+  put(caseDir, 'fixture.sh', script);
+  execFileSync('bash', [join(caseDir, 'fixture.sh')], { cwd: ws, env: { PATH: process.env.PATH, HOME: ws } });
+  assert.equal(readFileSync(join(ws, 'a.txt'), 'utf8'), 'overlaid\n');
+  assert.equal(execFileSync('git', ['status', '--porcelain'], { cwd: ws, encoding: 'utf8' }).trim(), 'M dir/b.txt');
+  assert.equal(execFileSync('git', ['show', 'HEAD:dir/b.txt'], { cwd: ws, encoding: 'utf8' }), 'b\n');
+  assert.throws(() => renderScaffold(fx, { fixture: 'missing' }, 'c'), /not found/);
+});

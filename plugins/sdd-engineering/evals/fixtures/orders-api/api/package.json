@@ -1,0 +1,11 @@
+{
+  "name": "orders-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "node scripts/check.mjs",
+    "lint": "node scripts/check.mjs --lint",
+    "test": "node --test",
+    "test:integration": "echo 'needs DATABASE_URL' && exit 1"
+  }
+}
