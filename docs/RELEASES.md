@@ -39,6 +39,14 @@ git switch main && git pull
 ./scripts/promote.sh <plugin> <version>   # pin the stable channel to the new tag (opens a branch for a PR)
 ```
 
+The stable channel resolves dependencies **inside itself**. A plugin whose dependencies are not
+pinned there installs as `dependency-unsatisfied`. The first promotion of a plugin therefore pins its
+dependencies in the same commit:
+
+```
+./scripts/promote.sh engineering-paved-path 1.0.0 research-tools 1.0.0 architecture-review 1.0.0 sdd-engineering 1.0.0
+```
+
 `release.sh` checks:
 - the tree is clean and you are on `main`;
 - `CHANGELOG.md` has a `## [<version>]` section;
