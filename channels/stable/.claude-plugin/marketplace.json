@@ -1,0 +1,81 @@
+{
+  "name": "dev-digest-ai-marketplace-stable",
+  "owner": {
+    "name": "Pereplut",
+    "url": "https://github.com/Pereplut"
+  },
+  "description": "Spec-Driven Development workflow for Claude Code: spec, plan, implement, verify and review — plus the reusable research, architecture-review and paved-path plugins it depends on. (stable channel: pinned release tags)",
+  "plugins": [
+    {
+      "name": "engineering-paved-path",
+      "description": "Shared technical skills: onion / ports-and-adapters architecture, React code organization, and web application security.",
+      "category": "skills",
+      "tags": [
+        "architecture",
+        "react",
+        "security",
+        "paved-path"
+      ],
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/Pereplut/dev-digest-ai-marketplace.git",
+        "path": "plugins/engineering-paved-path",
+        "ref": "engineering-paved-path--v1.0.0",
+        "sha": "dc0752a8ecb7fcc277377e6ef0258f08cce5839e"
+      }
+    },
+    {
+      "name": "research-tools",
+      "description": "Read-only researcher agent for repository and upstream-documentation research with evidence and an explicit Not found list.",
+      "category": "agents",
+      "tags": [
+        "research",
+        "read-only",
+        "discovery"
+      ],
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/Pereplut/dev-digest-ai-marketplace.git",
+        "path": "plugins/research-tools",
+        "ref": "research-tools--v1.0.0",
+        "sha": "dc0752a8ecb7fcc277377e6ef0258f08cce5839e"
+      }
+    },
+    {
+      "name": "architecture-review",
+      "description": "Read-only architecture-reviewer agent that checks a diff against layering rules and repository-local architecture docs.",
+      "category": "review",
+      "tags": [
+        "architecture",
+        "review",
+        "layering"
+      ],
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/Pereplut/dev-digest-ai-marketplace.git",
+        "path": "plugins/architecture-review",
+        "ref": "architecture-review--v1.0.0",
+        "sha": "dc0752a8ecb7fcc277377e6ef0258f08cce5839e"
+      }
+    },
+    {
+      "name": "sdd-engineering",
+      "description": "Spec-Driven Development workflow: spec-creator, implementation-planner, implementer, plan-verifier, test-writer and doc-writer agents, orchestrated by run-plan.",
+      "category": "workflow",
+      "tags": [
+        "sdd",
+        "spec",
+        "plan",
+        "workflow",
+        "agents"
+      ],
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/Pereplut/dev-digest-ai-marketplace.git",
+        "path": "plugins/sdd-engineering",
+        "ref": "sdd-engineering--v1.0.0",
+        "sha": "dc0752a8ecb7fcc277377e6ef0258f08cce5839e"
+      }
+    }
+  ]
+}
