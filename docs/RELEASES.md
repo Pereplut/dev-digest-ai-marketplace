@@ -138,6 +138,9 @@ The rehearsed command sequence and its results are recorded below after each reh
 
 ## Rehearsal log
 
+The [build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) summarizes the 2026-10-16
+release and rollback rehearsal. The rows below are the full record.
+
 | Date | From → to | Result |
 |---|---|---|
 | 2026-10-16 | **On `main`.** Stable `sdd-engineering` 1.1.0 → 1.0.0 via `./scripts/rollback.sh sdd-engineering 1.0.0` (PR #3, `2ab6659`); then back to latest 1.1.0 | 1. Maintainer: `rollback.sh` pinned `sdd-engineering--v1.0.0` (`dc0752a`), changed 2 lines, and passed validation and `check-stable-deps`. Merged as #3. 2. User on latest: disable the four latest entries, dependents first (`engineering-paved-path` refused while `architecture-review` needed it; the order is fixed in the steps above); add stable from the `main` raw URL; install. Got stable 1.1.0, before the rollback merged. 3. After #3: `marketplace update` + `plugin update` went 1.1.0 → 1.0.0 (the update downgrades). Only the four `-stable` ids loaded, `plugin_errors` none. 4. Smoke: spec-creator dispatched, report has `## Spec written` but no `## Requirement coverage`, which is 1.0.0's behaviour ($0.56). 5. Return: uninstall `--keep-data`, `prune -y`, remove the stable marketplace, enable dependencies first, `update`: latest 1.1.0, no errors. Plugin data: none written by these plugins. One invalid smoke run is not counted: `git stash -u` had reverted `.claude/settings.json`, so the latest channel loaded instead ($0.57). |
