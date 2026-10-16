@@ -163,6 +163,8 @@ working is on record. All on Claude Code 2.1.301, the CLI default model (`claude
 | 2026-10-16 | + grader fix 1 | `spec-creator-writes-spec-only`, 3 runs, both arms | 0.67 with | $1.59 | 147 s | Judge now sees the file. It penalised provenance citations, and the boundary was checked in the parent's reply (fixed) |
 | 2026-10-16 | + grader fix 2 | same | 1.00 with | $1.54 | 140 s | Boundary regex failed 2/3 but was **not scored** (with-only under with-without) |
 | 2026-10-16 | + arms fixed | `--case 'spec-*'`, 3 runs, both arms | 0.94 with / 0.25 without | $3.21 | 258 s | Rows used in the baseline table |
+| 2026-10-16 | `dc0752a` (tag 1.0.0) | `spec-creator-covers-mandatory`, 3 runs | 0.76 recorded, 4/4 requirements after rescoring | $1.44 | — | [Release comparisons](#release-comparisons) |
+| 2026-10-16 | 1.1.0 candidate | `--case 'spec-creator-*'`, 3 runs | 0.86 / 0.93 recorded | $2.99 | — | same |
 
 Per case, the first valid negative run (one run each):
 
@@ -172,6 +174,39 @@ Per case, the first valid negative run (one run each):
 | `retro-not-auto` | 1.0 | $0.123 | 8 | Answered from `.sdd/retro/*.runs.jsonl`; `workflow-retro` not invoked |
 | `spec-and-plan-locations` | 1.0 | $0.249 | 14 | `/sdd-engineering:run-plan 0001` ran the skill (it read `references/*.md`), found no plan, named `.sdd/specs-0001-orders-csv-export.plan.md` |
 | `unrelated-request` | 1.0 | $0.067 | 1 | Answered directly; no Agent or Skill call |
+
+## Release comparisons
+
+### sdd-engineering 1.0.0 → 1.1.0 (2026-10-16)
+
+`claude-opus-5-5`, `--ablation none`, 3 runs per cell. 1.0.0 ran from a worktree of
+`sdd-engineering--v1.0.0`, with the new case copied in.
+
+| Case | Grader | 1.0.0 | 1.1.0 |
+|---|---|---|---|
+| `spec-creator-covers-mandatory` | each of the 4 mandatory requirements has an AC | 12/12 | 12/12 |
+| | `## Requirement coverage` in the agent's report | 0/3 | **3/3** |
+| | median cost | $0.484 | $0.496 |
+| `spec-creator-writes-spec-only` | `Write boundary:` line in the report | 5/9 (earlier runs) | **3/3** |
+| | `spec-quality` (judge on the file) | 5/6 | 2/3 |
+| | median cost | $0.467 | $0.536 |
+
+**Reading it.**
+- The coverage rule did not change coverage on this case: 1.0.0 already covered all four
+  requirements. So the case shows no regression, not an improvement. Showing one would take a case
+  with more requirements, or less prominent ones.
+- The rule's visible effect is the reported table. That lets a reviewer check coverage without
+  reading the spec.
+- The boundary line went from unreliable to present every time.
+- The cost difference is inside the spread seen in the 9-run sample ($0.42–$0.51) for the new case.
+  It is at its edge for the old one; recheck it when the baseline is rerun.
+
+**Grader fixes during the comparison.** These were deterministic, so the six runs were **rescored
+offline**: each spec was rebuilt from its trace's `Write` and `Edit` calls, and every recorded verdict
+was reproduced first. The per-requirement regexes matched only one line. spec-creator wraps long
+criteria, so a covered requirement read as missing (1.1.0 run 2, three false failures). They now
+span the whole `**AC-N**` item. The default-limit grader also missed the phrasing "carries no
+`limit`" (1.0.0 runs 1 and 3, two false failures).
 
 ## Optimization log
 

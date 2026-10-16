@@ -14,7 +14,9 @@ appear LITERALLY in the test plan's first column. A range such as `AC-1..AC-5` r
 to a human and is invisible to anything that enumerates `AC*` by identifier, so ranges
 are rejected by name, which makes the fix legible rather than a mystery mismatch.
 
-WHICH SPECS ARE CHECKED. Only those carrying `## Acceptance criteria (EARS)`. That heading
+WHICH SPECS ARE CHECKED. Only those carrying `## Acceptance criteria (EARS)`, except that a
+`status: draft` spec or a spec named on the command line without that heading is a failure, and
+every skipped file is named. That heading
 is the discriminator for the current template, so older specs written before it are
 exempt by construction rather than by a hardcoded list that would rot.
 
@@ -252,6 +254,15 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     return ap.parse_args(argv)
 
 
+def is_draft(text: str) -> bool:
+    """True when the frontmatter says `status: draft`."""
+    if not text.startswith("---"):
+        return False
+    end = text.find("\n---", 3)
+    head = text[3:end] if end > 0 else ""
+    return re.search(r"^status:\s*['\"]?draft\b", head, re.M) is not None
+
+
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
     repo = Path(args.root)
@@ -280,7 +291,18 @@ def main(argv: list[str]) -> int:
     for path in targets:
         text = path.read_text(encoding="utf-8")
         if NEW_FORMAT_MARKER not in text:
+            # A draft is being written now, so it must use the current template; so must a spec
+            # named on the command line. Without this, a spec whose criteria heading is misspelt
+            # passes by never being checked.
+            if args.specs or is_draft(text):
+                why = "named on the command line" if args.specs else "status: draft"
+                line = (f"{relative(path, repo)}: has no `{NEW_FORMAT_MARKER}` heading ({why}), so none "
+                        "of its sections would be checked. Use the template's headings exactly.")
+                problems.append(line)
+                print(f"FAIL: {line}")
+                continue
             skipped += 1
+            print(f"skipped (no `{NEW_FORMAT_MARKER}`, not a draft): {relative(path, repo)}")
             continue
         checked += 1
         found = check_spec(path, text, required, indexes.get(path.parent.resolve()), repo)

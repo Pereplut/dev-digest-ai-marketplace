@@ -133,6 +133,31 @@ class SpecCheckTest(unittest.TestCase):
         with Fixture() as f:
             self.assertEqual(f.run(), [])
 
+    # --- a misspelt criteria heading must not pass by being skipped (found installing 1.0.0) ---
+
+    def test_a_draft_without_the_marker_fails(self):
+        spec = GOOD_SPEC.replace("## Acceptance criteria (EARS)", "## Acceptance criteria")
+        with Fixture(spec) as f:
+            code, out = f.main()
+        self.assertEqual(code, 1)
+        self.assertIn("has no `## Acceptance criteria (EARS)` heading (status: draft)", out)
+
+    def test_an_old_spec_without_the_marker_is_skipped_by_name(self):
+        spec = GOOD_SPEC.replace("## Acceptance criteria (EARS)", "## Acceptance criteria").replace(
+            "status: draft", "status: done")
+        with Fixture(spec) as f:
+            code, out = f.main()
+        self.assertEqual(code, 0)
+        self.assertIn("skipped (no `## Acceptance criteria (EARS)`, not a draft): specs/0001-example.md", out)
+
+    def test_a_named_spec_without_the_marker_fails_even_when_done(self):
+        spec = GOOD_SPEC.replace("## Acceptance criteria (EARS)", "## Acceptance criteria").replace(
+            "status: draft", "status: done")
+        with Fixture(spec) as f:
+            code, out = f.main("specs/0001-example.md")
+        self.assertEqual(code, 1)
+        self.assertIn("(named on the command line)", out)
+
     # --- sections, paired ---
 
     def test_a_missing_section_fails(self):

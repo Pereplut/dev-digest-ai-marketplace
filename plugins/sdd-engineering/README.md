@@ -147,11 +147,21 @@ too, add rules like these to your project's `.claude/settings.json`:
 ```json
 {
   "permissions": {
-    "allow": ["Bash(git status:*)", "Bash(git log:*)", "Bash(git show:*)", "Bash(git diff:*)", "Bash(ls:*)"],
+    "allow": [
+      "Read(~/.claude/plugins/cache/dev-digest-ai-marketplace/**)",
+      "Bash(git status:*)", "Bash(git log:*)", "Bash(git show:*)", "Bash(git diff:*)", "Bash(ls:*)"
+    ],
     "deny": ["Read(./.env*)", "Read(~/.ssh/**)", "Bash(git push:*)"]
   }
 }
 ```
+
+The `Read` rule lets the agents open the plugin's own reference files: the spec template and
+`run-plan`'s `references/`. These sit in the plugin cache, outside your project, so without the rule
+Claude Code asks for each read, and a headless (`claude -p`) session refuses it. The skills cope with
+a refusal. `spec-authoring` carries the template's headings inline. With the rule, nothing is skipped.
+The rule covers the latest channel. The stable channel caches under
+`~/.claude/plugins/cache/dev-digest-ai-marketplace-stable/`, so add that path too if you use it.
 
 ## Limitations
 
@@ -168,7 +178,7 @@ too, add rules like these to your project's `.claude/settings.json`:
 
 ## Evals
 
-`evals/` holds the plugin's behaviour suite for `claude plugin eval`: 10 cases over a small fixture
+`evals/` holds the plugin's behaviour suite for `claude plugin eval`: 11 cases over a small fixture
 repository, including negative cases (an unrelated request must not start the workflow; the retro
 never runs on its own). It is for maintainers. Using the plugin never runs it. How to run it and
 the measured costs are in

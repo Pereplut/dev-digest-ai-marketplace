@@ -26,6 +26,18 @@ how to write the content so a criterion cannot be satisfied by accident.
 - **Template.** The fenced ` ```markdown ` block in `<spec-dir>/README.md` if the project has one;
   otherwise the bundled [references/spec-template.md](references/spec-template.md). If the spec
   directory does not exist yet, create it with a `README.md` index.
+- **Headings, if you cannot read the bundled template.** Reading a file inside an installed plugin
+  needs a permission the session may not have. If the read is refused, use exactly these
+  level-2 headings, in this order:
+
+  <!-- headings: kept identical to references/spec-template.md by test/python/test_skill_headings.py -->
+  `## Problem & why` · `## Goals / Non-goals` · `## User stories` · `## Acceptance criteria (EARS)` ·
+  `## Edge cases` · `## Non-functional` · `## Inputs (provenance)` · `## Untrusted inputs` ·
+  `## [NEEDS CLARIFICATION]` · `## Test plan` · `## Phases`
+
+  The criteria heading must read `## Acceptance criteria (EARS)` exactly. `check_specs.py` uses it to
+  recognise a spec in the current format, and it fails a draft that does not carry it. Frontmatter:
+  `title`, `status: draft`; `owner`, `packages`, `supersedes` are optional.
 - **Structural check.** After writing or amending a spec, run:
 
   ```

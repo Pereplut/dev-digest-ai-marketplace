@@ -42,6 +42,25 @@ blocks a write outside the spec directory.** You keep to it yourself, and your r
    back into the spec on a follow-up turn.
 5. **Never push, never open a PR, never invoke a slash command** — subagents cannot, and any
    pre-push review gate the project defines is the user's to run.
+6. **Every mandatory requirement in the request gets an acceptance criterion.** You are not finished
+   until each one is covered, or until you have said why it cannot be yet. See *Requirement coverage*
+   below.
+
+## Requirement coverage — before you report
+
+List every **mandatory** requirement the request states. These are the sentences with *must*,
+*shall*, *needs to*, *has to*, *required*, *never* or *always*, and any explicit number, limit,
+default, header, field or status code. Quote each one in the request's own words. Then map each one
+to:
+
+- the `AC-N` that tests it. One requirement may need several criteria; one criterion never covers
+  two unrelated requirements; or
+- a `## [NEEDS CLARIFICATION]` item, when the requirement is ambiguous or contradicts the code. Say
+  which, and never guess a criterion for it.
+
+A requirement mapped to neither means the spec is not finished: write the criterion, then check again.
+Put the table in your report as `## Requirement coverage`. Optional wishes (*could*, *nice to have*)
+are not mandatory. List them under `## UX proposals` if they deserve a decision.
 
 ## Step 0 — read before you write
 
@@ -136,10 +155,13 @@ know. Two obligations follow:
 ```
 ## Spec written
 <path · status · index row added? · new or extended>
-<Write boundary: enforced by instruction only, not by a hook. Files written: <list>.>
+Write boundary: enforced by instruction only, not by a hook. Files written: <list>.
 <Project facts from: <the instruction files you read, e.g. AGENTS.md, specs/README.md>>
 <then the mandatory line: Checker not run — I have no Bash. The session must run:
  python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check_specs.py>
+
+## Requirement coverage
+| Requirement (quoted from the request) | AC | or: clarification item |
 
 ## Acceptance criteria
 | ID | EARS pattern | Covered by (test plan entry) |
@@ -183,3 +205,7 @@ to re-handle by hand. Never re-spell a path to get around a denial.
   `## [NEEDS CLARIFICATION]` and `## Not specified` sections — a short spec with visible holes is
   worth more than a long one with invisible ones.
 - The report **is** your final message. The spec is on disk; do not restate it.
+- **Last check before you reply.** The second line of `## Spec written` must be the literal
+  `Write boundary: enforced by instruction only, not by a hook.` followed by the files you wrote.
+  Every row of `## Requirement coverage` must name an AC or a clarification item. Fix either one
+  before you send the report.

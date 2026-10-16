@@ -49,6 +49,19 @@ marked with-only still leaves the run at 1.0: `boundary-stated` failed 2 of 3 ru
 Keep with-only for "the plugin fired" checks only. A grader that tests a requirement should be
 `arm: both`, so the no-plugin arm failing it shows up in the delta.
 
+### An installed plugin cannot read its own reference files without a permission
+**Date:** 2026-10-16
+**Evidence:** `plugins/sdd-engineering/skills/spec-authoring/SKILL.md` (Headings); `plugins/sdd-engineering/README.md`
+(Recommended settings); `plugins/sdd-engineering/scripts/check_specs.py` (`is_draft`)
+Installed plugins live in `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`, which is outside
+the project. A `Read` of a skill's `references/*.md` there gets "Claude requested permissions to read from
+… but you haven't granted it yet". Headless sessions refuse it; interactive ones prompt. Evals do not
+show this, because they run with reads allowed everywhere. Installing 1.0.0 into a fresh repository,
+spec-creator therefore never saw the template and wrote `## Acceptance criteria`, and `check_specs.py`
+skipped the spec and exited 0. `Read(~/.claude/plugins/cache/dev-digest-ai-marketplace/**)` in
+`permissions.allow` fixes the read (verified). Anything a skill must not miss belongs in the
+`SKILL.md` body, which loads without a read.
+
 ### npm and Playwright downloads fail on this WSL host with TLS record errors; retry with one socket
 **Date:** 2026-10-16
 **Evidence:** `site/package-lock.json` (created after retries)
