@@ -68,3 +68,10 @@ test.describe('phone width (AC-15)', () => {
     });
   }
 });
+
+test('the footer links the build report in a new tab', async ({ page }) => {
+  await page.goto('./#/');
+  const link = page.getByRole('contentinfo').getByRole('link', { name: 'Build report' });
+  await expect(link).toHaveAttribute('href', 'https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3');
+  await expect(link).toHaveAttribute('target', '_blank');
+});
