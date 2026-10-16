@@ -157,3 +157,22 @@ test('check-evals: every case must load the plugin and its dependencies', () => 
   assert.deepEqual(errors, ['no-dep: plugins: does not list dependency base (the plugin would be rejected as dependency-unsatisfied)']);
   assert.deepEqual(checkSuite(join(root, 'plugins/app/evals')).errors, [], 'no dependencies: nothing to check');
 });
+
+test('eval-usage: sums modelUsage over models, counts tool calls, marks a missing trace', async () => {
+  const { traceUsage, summarize } = await import('../../scripts/eval-usage.mjs');
+  const trace = [
+    JSON.stringify({ type: 'assistant', message: { content: [{ type: 'tool_use' }, { type: 'text' }] } }),
+    JSON.stringify({ type: 'assistant', message: { content: [{ type: 'tool_use' }] } }),
+    JSON.stringify({ type: 'result', modelUsage: { a: { inputTokens: 1, outputTokens: 10, cacheReadInputTokens: 100, cacheCreationInputTokens: 5 }, b: { inputTokens: 2, outputTokens: 20 } } }),
+  ].join('\n');
+  assert.deepEqual(traceUsage(trace), { input: 3, output: 30, cacheRead: 100, cacheWrite: 5, toolCalls: 2 });
+  assert.equal(traceUsage('not json\n'), null);
+  const result = { cases: [{ name: 'c', arms: { with: [
+    { tracePath: 't1', costUsd: 0.2, durationSeconds: 10 },
+    { tracePath: 'gone', costUsd: 0.4, durationSeconds: 30 },
+  ] } }] };
+  const [row] = summarize(result, (p) => (p === 't1' ? trace : null));
+  assert.equal(row.traced, 1);
+  assert.equal(row.output, 30);
+  assert.equal(row.cost, 0.30000000000000004);
+});

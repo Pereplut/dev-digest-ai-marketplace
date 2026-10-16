@@ -51,9 +51,18 @@ claude plugin eval . --eval-dir plugins/sdd-engineering/evals \
   --tag negative --runs 1 --ablation none --scaffold --trust-plugin --max-cost-usd 2 --no-publish
 
 # Baseline: every case, default runs, with the no-plugin arm, one fixed model
-claude plugin eval . --eval-dir plugins/sdd-engineering/evals \
+claude plugin eval . --eval-dir plugins/sdd-engineering/evals --allow-tools Bash Write Edit \
   --model <model> --scaffold --trust-plugin --max-cost-usd 25 --json baseline.json --no-publish
 ```
+
+**Tool grants.** A case's `allowed_tools` grants only read-only tools (`Read`, `Glob`, `Grep`, `Skill`,
+`Agent`, …). `Write`, `Edit` and `Bash` take `--allow-tools`, and that grant applies to every case
+in the run. Granting `Bash` runs each command in the OS sandbox: on Linux, install `bubblewrap` and
+`socat`. The sandbox also refuses every run (cost $0, error in the result) when `~/.docker` holds a
+symlink, as Docker Desktop's WSL integration creates (`contexts -> /mnt/c/...`). `DOCKER_CONFIG` does
+not change that check. On such a machine, run the Bash cases in CI. `--case` does not negate
+(`!run-plan-*` matches nothing), so select with `--tag`, which keeps cases matching any listed tag:
+`--tag spec plan review negative` is every case except the two heavy ones.
 
 **Why the root, and why `plugins:` in every case.** The eval loads only the plugin directories a
 case lists in `plugins:`, and it refuses any of them that sit outside the directory it was given.
@@ -71,30 +80,73 @@ the `ANTHROPIC_API_KEY` repository secret. Cases that grant `Bash` need the OS s
 
 ## Baseline
 
-**Not measured yet.** Fill in this table from the first full run. Smoke runs so far are under
-[Runs](#runs).
+Measured 2026-10-16. Covers **8 of 10 cases**. The two heavy run-plan cases need `Bash`, which this
+machine's sandbox refuses ([Tool grants](#how-to-run)), so they still have to run in CI.
 
 | Field | Value |
 |---|---|
-| Date | — |
-| Commit | — |
-| Claude Code | — |
-| Model (cases / judge) | — / haiku |
-| Runs per case | 3 (heavy cases: 1) |
-| Pass rate (with plugin) | — |
-| Δ vs. no-plugin arm | — |
-| Median cost per case | — |
-| Median latency per case | — |
-| Tokens (input / output / cache read) | — |
-| Tool calls per case (median) | — |
-| Critical failures | — |
-| Total cost | — |
+| Date | 2026-10-16 |
+| Commit | `73383f2` (graders as of the commit that adds this table) |
+| Claude Code | 2.1.301 |
+| Model (cases / judge) | `claude-opus-5-5` (fixed with `--model`) / haiku |
+| Runs per case | 3, both arms (`--ablation with-without`), `--allow-tools Write Edit` |
+| Mean score with plugin | **0.93** |
+| Mean score without plugin | 0.47 |
+| Δ vs. no-plugin arm | **+0.47** |
+| Runs passing every scored grader | 20 / 24 (83%) with plugin; 6 / 24 without |
+| Median cost per run, with plugin | $0.23 (range of case medians $0.07–$0.50) |
+| Median latency per run, with plugin | 55 s (range 8–152 s) |
+| Tokens | Recorded only for the two rerun cases (table below); the other runs' traces were not kept |
+| Tool calls per run (median) | Same: 11 and 18 with plugin |
+| Critical failures | **0**: no run wrote code, wrote a plan, approved a spec, ran the retro unasked, or dispatched an SDD agent on an unrelated request |
+| Cost of this table | $8.72 (8 cases) + $3.21 (2 cases rerun after the grader fixes below) |
 
-Per case:
+Per case. The scores come from `aggregate-result.json`: six cases from the 8-case run, and
+`spec-*` from the rerun.
 
-| Case | Score | Pass | Median cost | Median latency | Notes |
-|---|---|---|---|---|---|
-| (from `aggregate-result.json`) | | | | | |
+| Case | With | Without | Δ | Pass (with) | Median cost with / without | Median s | Failures with plugin |
+|---|---|---|---|---|---|---|---|
+| `arch-review-severity` | 0.83 | 0.33 | +0.50 | 2/3 | $0.210 / $0.056 | 57 | 1× `finding-quality` (judge 1 PASS, 2 FAIL) |
+| `no-verify-command` | 1.00 | 0.17 | +0.83 | 3/3 | $0.417 / $0.063 | 117 | — |
+| `planner-reads-project-facts` | 0.80 | 0.40 | +0.40 | 2/3 | $0.405 / $0.064 | 119 | 1× `project-facts-cited` |
+| `planner-refuses-draft-spec` | 1.00 | 0.33 | +0.67 | 3/3 | $0.166 / $0.058 | 52 | — |
+| `retro-not-auto` | 0.93 | 1.00 | −0.07 | 2/3 | $0.124 / $0.105 | 29 | 1× `answers` (judge 1 PASS, 2 FAIL); the retro was never invoked |
+| `unrelated-request` | 1.00 | 1.00 | 0 | 3/3 | $0.069 / $0.044 | 8 | — |
+| `spec-and-plan-locations` | 1.00 | 0.20 | +0.80 | 3/3 | $0.244 / $0.286 | 27 | — |
+| `spec-creator-writes-spec-only` | 0.88 | 0.29 | +0.58 | 2/3 | $0.499 / $0.061 | 152 | 1 run: no `Write boundary:` line in the report, and `spec-quality` FAIL |
+| `run-plan-gate-order` | — | — | — | — | — | — | not run (needs Bash) |
+| `run-plan-optional-stages` | — | — | — | — | — | — | not run (needs Bash) |
+
+Tokens and tool calls (`node scripts/eval-usage.mjs`, medians from kept traces, subagents included):
+
+| Case | Arm | Output | Cache read | Cache write | Input | Tool calls |
+|---|---|---|---|---|---|---|
+| `spec-and-plan-locations` | with | 2,246 | 79,997 | 22,749 | 8 | 11 |
+| `spec-and-plan-locations` | without | 5,686 | 122,569 | 19,825 | 20 | 23 |
+| `spec-creator-writes-spec-only` | with | 13,640 | 114,266 | 32,919 | 16 | 18 |
+| `spec-creator-writes-spec-only` | without | 700 | 17,008 | 5,447 | 4 | 2 |
+
+**Reading it.**
+- The negative cases make no difference with or without the plugin (`unrelated-request` 0,
+  `retro-not-auto` −0.07). That is the intended result: the plugin must not change behaviour where
+  it does not apply.
+- The `retro-not-auto` dip is one LLM-judge vote on the reply's wording. It is not the retro running.
+- `spec-and-plan-locations` is the one case where the plugin is *cheaper* than no plugin. Without
+  it, the model explores the repo for 23 tool calls and then edits the spec. With it, run-plan stops
+  at the missing plan after 11 calls.
+- The one consistent quality gap is `spec-creator` occasionally leaving out the `Write boundary:` line
+  (1 of 3 here; 1 of 3 in the previous rerun). That is a 1.1.0 candidate.
+
+**Grader fixes made before these numbers.** The graders were changed for being wrong, never to pass:
+- `spec-creator-writes-spec-only` first failed `spec-quality` 3/3 because the judge had `focus: trace`
+  and never saw the file. Next, it penalised the input-provenance citations the spec format
+  requires, and it looked for the boundary line in the parent's summary rather than in the agent's
+  report. Now the spec file is judged on its own (exact path named in the prompt), the boundary line
+  is a regex on the trace, and the open questions are judged on the reply.
+- Under `--ablation with-without`, an `arm: with-only` grader is reported but **not scored**, and
+  `tool_used: Skill` is with-only implicitly. Four graders that check a spec requirement
+  (`boundary-stated`, `report-quality`, `names-plan-path`, `tells-user-to-plan`) are now
+  `arm: both`. Only "did the plugin fire" checks (agent dispatch, skill loaded) stay with-only.
 
 ## Runs
 
@@ -106,8 +158,13 @@ working is on record. All on Claude Code 2.1.301, the CLI default model (`claude
 | 2026-10-16 | `de2fbac` | `--tag negative --runs 1 --ablation none`, installed-plugin target | 2/4 (score 0.69) | $0.32 | 69 s | **Invalid.** `sdd-engineering@inline` rejected as `dependency-unsatisfied`; no plugin was loaded. The two passes are the bare model. |
 | 2026-10-16 | `de2fbac` + `plugins:` | same, plugin-dir target | 0 cases loaded | $0 | 0 s | Refused: `plugins` entries outside the containment root `plugins/sdd-engineering`. |
 | 2026-10-16 | `de2fbac` + `plugins:` | same, marketplace-root target | **4/4** (score 1.0) | $0.66 | 122 s | All 4 plugins loaded, no `plugin_errors`; 8 agents, 7 skills namespaced. |
+| 2026-10-16 | `73383f2` | `arch-review-severity`, 1 run, `--allow-tools Bash Write Edit` | 0 runs | $0 | 0 s | Sandbox refused: `~/.docker` holds a symlink (Docker Desktop on WSL). Also refused with `DOCKER_CONFIG` pointing at an empty dir. |
+| 2026-10-16 | `73383f2` | **baseline**: `--tag spec plan review negative`, 3 runs, both arms, `--allow-tools Write Edit` | 0.89 with / 0.50 without | $8.72 | 723 s | 8 cases, `-j 3`. `spec-creator` 0.57: grader could not see the file (fixed) |
+| 2026-10-16 | + grader fix 1 | `spec-creator-writes-spec-only`, 3 runs, both arms | 0.67 with | $1.59 | 147 s | Judge now sees the file. It penalised provenance citations, and the boundary was checked in the parent's reply (fixed) |
+| 2026-10-16 | + grader fix 2 | same | 1.00 with | $1.54 | 140 s | Boundary regex failed 2/3 but was **not scored** (with-only under with-without) |
+| 2026-10-16 | + arms fixed | `--case 'spec-*'`, 3 runs, both arms | 0.94 with / 0.25 without | $3.21 | 258 s | Rows used in the baseline table |
 
-Per case, last row (one run each, so no median yet):
+Per case, the first valid negative run (one run each):
 
 | Case | Score | Cost | Turns | What the trace showed |
 |---|---|---|---|---|
@@ -142,5 +199,9 @@ Still open:
 
 - **Unattended run-plan.** `run-plan` normally asks the user to confirm the execution mode. The
   heavy cases state the mode in the prompt and tell it to take the documented defaults. Not run yet.
-- **Baseline arm from a root target.** With `.` as the target, the suite resolved all four plugins. Whether the
-  default `--ablation with-without` then adds the no-plugin arm shows on the first baseline run.
+- **Heavy cases.** `run-plan-gate-order` and `run-plan-optional-stages` need `Bash`. Run them in CI
+  (`evals` workflow, tag `heavy`), then add them to the baseline.
+
+Settled by the baseline: a marketplace-root target with `--ablation with-without` does run the
+no-plugin arm. The plugin's agents are then absent ("Agent type … not found"). `--case` takes a
+plain glob with no `!` negation and no `{a,b}` braces.

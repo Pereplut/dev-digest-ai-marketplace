@@ -11,4 +11,4 @@ Use the sdd-engineering spec-creator agent to write a spec for this feature:
 Support staff need to cancel an order through the API. A cancelled order must keep its row in the
 CSV export but show status `cancelled`. There are no mockups for this.
 
-Only the spec, please. Do not plan or implement anything.
+Save it as `specs/0002-order-cancellation.md`. Only the spec, please. Do not plan or implement anything.

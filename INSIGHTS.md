@@ -29,6 +29,26 @@ plugin dir, because they are outside its containment root. Target the marketplac
 `claude plugin eval . --eval-dir plugins/sdd-engineering/evals`. `--eval-dir` takes a relative path,
 not only a folder name. Always check the init line's `plugin_errors` before trusting a pass.
 
+### A Bash-granting eval refuses to run on WSL with Docker Desktop's `~/.docker` symlinks
+**Date:** 2026-10-16
+**Evidence:** `docs/COST-BASELINE.md` (How to run, Tool grants); `.github/workflows/evals.yml` (`--allow-tools`)
+Before each run, `claude plugin eval --allow-tools Bash` (2.1.301) checks that the sandbox can hide the
+Docker credential store. Docker Desktop's WSL integration makes `~/.docker/contexts` a symlink into `/mnt/c`,
+and every run then errors with "credential store … holds a symbolic link … a Bash-granting evaluation
+cannot run here" at $0. Setting `DOCKER_CONFIG` to an empty dir does not help, because `~/.docker` is still checked.
+Run Bash cases in CI, or move the store's contents into a plain directory. `Write`/`Edit` grants
+do not need the sandbox.
+
+### Under `--ablation with-without`, `arm: with-only` graders are not scored
+**Date:** 2026-10-16
+**Evidence:** `plugins/sdd-engineering/evals/spec-creator-writes-spec-only/graders/boundary-stated.md` (`arm`);
+`docs/COST-BASELINE.md` (Runs, "grader fix 2")
+In the result JSON, each grader carries `scored`. With both arms running, every with-only grader has
+`scored: false`, and so does `tool_used: Skill`, even without an `arm` key. A failing requirement check
+marked with-only still leaves the run at 1.0: `boundary-stated` failed 2 of 3 runs that all scored 1.0.
+Keep with-only for "the plugin fired" checks only. A grader that tests a requirement should be
+`arm: both`, so the no-plugin arm failing it shows up in the delta.
+
 ### npm and Playwright downloads fail on this WSL host with TLS record errors; retry with one socket
 **Date:** 2026-10-16
 **Evidence:** `site/package-lock.json` (created after retries)

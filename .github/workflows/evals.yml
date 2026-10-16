@@ -56,7 +56,9 @@ jobs:
         run: |
           # --scaffold: every case seeds its workspace with fixture.sh, generated in this repo by
           # scripts/build-eval-fixtures.mjs from evals/fixtures/ (we authored them; see docs/COST-BASELINE.md).
-          args=(--trust-plugin --scaffold --no-publish --runs "$RUNS" --max-cost-usd "$MAX_COST" --json results.json --report report.html)
+          # Case-level allowed_tools only covers read-only tools; anything that writes must be granted
+          # here. Bash runs inside the OS sandbox installed above.
+          args=(--trust-plugin --scaffold --no-publish --allow-tools Bash Write Edit --runs "$RUNS" --max-cost-usd "$MAX_COST" --json results.json --report report.html)
           [[ -n "$CASE" ]] && args+=(--case "$CASE")
           [[ -n "$TAG" ]] && args+=(--tag "$TAG")
           [[ -n "$MODEL" ]] && args+=(--model "$MODEL")
