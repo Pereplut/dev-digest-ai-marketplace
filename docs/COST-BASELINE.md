@@ -238,8 +238,10 @@ Settled by the 2026-10-16 negative run (traces kept with `--keep-temp`):
 
 Still open:
 
-- **Unattended run-plan.** `run-plan` normally asks the user to confirm the execution mode. The
-  heavy cases state the mode in the prompt and tell it to take the documented defaults. Not run yet.
+- **Unattended run-plan: works outside the eval.** In a real headless session (`claude -p`, the Phase 7 install,
+  docs/RELEASES.md), `/sdd-engineering:run-plan 0001` with the mode stated in the prompt ran to `done`
+  unattended: implementer, plan-verifier, architecture-reviewer with `/code-review`, 2 fix rounds, final
+  verifier, doc-writer, insights. It cost $3.03, made 4 commits, and passed 16/16 tests. The eval cases still have to confirm it under the sandbox.
 - **Heavy cases.** `run-plan-gate-order` and `run-plan-optional-stages` need `Bash`. Run them in CI
   (`evals` workflow, tag `heavy`), then add them to the baseline.
 

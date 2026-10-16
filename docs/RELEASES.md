@@ -94,23 +94,34 @@ pinned to a verified version.
 **User:**
 
 ```
-claude plugin disable sdd-engineering@dev-digest-ai-marketplace --scope project
+# 1. Disable the latest-channel copies of the plugin AND its dependencies. Otherwise both channels'
+#    copies are enabled, only one of each name loads, and which one is not defined.
+for p in sdd-engineering engineering-paved-path research-tools architecture-review; do
+  claude plugin disable "$p@dev-digest-ai-marketplace" --scope project
+done
+# 2. Add the stable channel and install from it (its dependencies come from the same channel).
 claude plugin marketplace add https://raw.githubusercontent.com/Pereplut/dev-digest-ai-marketplace/main/channels/stable/.claude-plugin/marketplace.json --scope project
 claude plugin install sdd-engineering@dev-digest-ai-marketplace-stable --scope project
-/reload-plugins
-# run the smoke eval / a short workflow
+# 3. Check: the -stable ids enabled at the pinned version, the latest ones disabled.
+claude plugin list --json
+/reload-plugins   # or start a new session; then run a short workflow
 ```
 
-Plugin data in `${CLAUDE_PLUGIN_DATA}` is kept across disable and update, and is removed only on
-the last uninstall without `--keep-data`. The SDD plugins keep their state in the target
-repository (`specs/`, `.sdd/`), so a rollback does not touch it.
+**Plugin data.** These plugins write nothing to `${CLAUDE_PLUGIN_DATA}`; their state lives in the
+target repository (`specs/`, `.sdd/`), so a rollback does not touch it. Plugin data is keyed by
+plugin id, and `x@dev-digest-ai-marketplace-stable` is a different id from
+`x@dev-digest-ai-marketplace`. A plugin that did keep data would start empty on the other channel.
+Its latest-channel data stays, because `disable` keeps it, and so does `uninstall --keep-data`.
 
-**Returning to latest:** fix forward, release a new version, then re-enable the latest entry and
-uninstall the stable one:
+**Returning to latest:** fix forward, release a new version, then:
 
 ```
 claude plugin uninstall sdd-engineering@dev-digest-ai-marketplace-stable --scope project --keep-data
-claude plugin enable sdd-engineering@dev-digest-ai-marketplace --scope project
+claude plugin prune --scope project                       # removes the stable channel's dependencies
+claude plugin marketplace remove dev-digest-ai-marketplace-stable --scope project
+for p in sdd-engineering engineering-paved-path research-tools architecture-review; do
+  claude plugin enable "$p@dev-digest-ai-marketplace" --scope project
+done
 claude plugin update sdd-engineering@dev-digest-ai-marketplace --scope project
 ```
 
@@ -120,4 +131,4 @@ The rehearsed command sequence and its results are recorded below after each reh
 
 | Date | From → to | Result |
 |---|---|---|
-| — | — | not yet rehearsed |
+| 2026-10-16 | latest `sdd-engineering` 1.1.0 → stable 1.0.0 → latest 1.1.0, in a fresh repository, from the **PR #1 branch's** raw URL (stable not yet merged to `main`) | Stable install: `sdd-engineering@…-stable` 1.0.0 with its 3 dependencies from the stable channel, pinned to `dc0752a`; `plugin_errors` none. With only `sdd-engineering` disabled, the latest-channel dependencies stayed enabled next to the stable ones and each name loaded once, undefined which: the user steps now disable all four. Return: uninstall + `prune` + enable + update, back to 1.1.0. No plugin data to keep (none written). |
