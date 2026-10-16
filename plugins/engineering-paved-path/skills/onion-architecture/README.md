@@ -1,6 +1,8 @@
 # onion-architecture — provenance
 
 Research backing [SKILL.md](SKILL.md). Every rule there traces to a source here.
+The marketplace's [build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) covers how this
+skill's plugin was built and released.
 
 Part of the `engineering-paved-path` plugin. Originally authored as a project-local skill for one
 TypeScript backend and generalized for reuse: project tables, paths and known-deviation lists were

@@ -5,6 +5,8 @@
 Part of the `engineering-paved-path` plugin. Originally authored as a project-local skill and
 generalized for reuse: the project-specific mapping was removed, and SKILL.md now ends with a
 **Project overlay** section that tells the reader to apply the target repository's own rules first.
+The marketplace's [build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) covers how this
+skill's plugin was built and released.
 
 | File | What it is |
 |---|---|
