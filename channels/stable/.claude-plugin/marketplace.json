@@ -73,8 +73,8 @@
         "source": "git-subdir",
         "url": "https://github.com/Pereplut/dev-digest-ai-marketplace.git",
         "path": "plugins/sdd-engineering",
-        "ref": "sdd-engineering--v1.1.0",
-        "sha": "f441dc1f2f05a3e55f4004fdb7e86d6f0a083084"
+        "ref": "sdd-engineering--v1.0.0",
+        "sha": "dc0752a8ecb7fcc277377e6ef0258f08cce5839e"
       }
     }
   ]
