@@ -6,6 +6,10 @@ agent, and every handoff produces a written artefact.
 
 Catalog: **https://pereplut.github.io/dev-digest-ai-marketplace/**
 
+Build report (what was built, release rehearsal, eval results):
+[claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3).
+The figures come from [docs/COST-BASELINE.md](docs/COST-BASELINE.md) and [docs/RELEASES.md](docs/RELEASES.md).
+
 ## Plugins
 
 | Plugin | What you get | Depends on |
