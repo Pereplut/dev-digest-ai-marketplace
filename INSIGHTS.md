@@ -1,6 +1,8 @@
 # Insights
 
-Append-only log of non-obvious findings. Each entry is dated and cites evidence.
+Append-only log of non-obvious findings. Each entry is dated and cites evidence. The
+[build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) summarizes the eval-tooling findings
+among them.
 
 ### `node --test <dir>` fails on Node 22; pass a glob
 **Date:** 2026-10-16
