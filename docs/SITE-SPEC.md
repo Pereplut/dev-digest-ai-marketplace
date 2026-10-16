@@ -36,6 +36,10 @@ operation.
   - `bodies/<id>.md`: raw Markdown bodies, loaded lazily
   - `feed.xml`: an Atom feed of releases
   - `catalog.html`: the no-JS plugin list (AC-12), injected into `index.html` at build time
+- Every page's footer and `catalog.html` link the project's
+  [build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3). Its URL is `index.marketplace.reportUrl`, set once
+  in `build-index.mjs` (`DEFAULT_REPORT_URL`); `scripts/ci/check-static-catalog.mjs` fails a build
+  whose static catalog lacks the link.
 - `site/` is built with Vite, React and TypeScript. It uses hash routing, MiniSearch for search,
   and marked followed by DOMPurify for Markdown.
 - Generated `site/public/*.json`, `bodies/`, `feed.xml`, `catalog.html` and `site/dist/` are never committed.

@@ -3,7 +3,7 @@
 What the `sdd-engineering` workflow costs to run, measured with its behaviour evals, and the record
 of each optimization tried against that baseline (spec 0001 AC-22). Every number here comes from
 a `claude plugin eval` run whose `aggregate-result.json` was kept. A number that was not measured
-says so.
+says so. The [build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) charts the per-case baseline scores from this file.
 
 ## The eval suite
 

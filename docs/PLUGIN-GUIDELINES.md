@@ -45,3 +45,6 @@ Schema validation checks the shape of the files. Behaviour evals check that the 
 right work. A plugin that changes behaviour needs both. Use the `claude plugin eval` layout
 (`evals/<case>/prompt.md` + `graders/`). Add a negative case whenever you widen a trigger
 description, so the component does not fire on unrelated requests.
+
+The [build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) shows what the current suite measured, and the grader mistakes it caught
+along the way. The details are in [COST-BASELINE.md](COST-BASELINE.md).
