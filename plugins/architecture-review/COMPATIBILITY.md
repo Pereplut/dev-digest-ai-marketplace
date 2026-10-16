@@ -13,3 +13,6 @@ The minimum is set by the marketplace's use of version-constrained plugin depend
   `engineering-paved-path@^1.0.0`.
 - The `Skill` tool inside a plugin agent, to load cross-plugin skills by namespaced name. If it is
   unavailable the agent falls back to locating the skill file with `Glob` and `Read`.
+
+The [build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) covers how these releases were
+tested and rehearsed.

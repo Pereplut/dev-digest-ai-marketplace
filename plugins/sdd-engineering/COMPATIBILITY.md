@@ -36,3 +36,6 @@ None are required. When present, the following are used:
 - a `specs/` directory with a template in `specs/README.md`
 - `INSIGHTS.md` files
 - `docs/`
+
+The [build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) covers how these releases were
+tested and rehearsed.
