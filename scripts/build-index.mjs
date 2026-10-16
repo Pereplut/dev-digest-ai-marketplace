@@ -19,6 +19,8 @@ import { execFileSync } from 'node:child_process';
 import { loadMarketplace, asList, walk, readJson } from './lib/repo.mjs';
 
 export const DEFAULT_SITE_URL = 'https://pereplut.github.io/dev-digest-ai-marketplace/';
+/** The project's build report (what was built, release rehearsal, eval results), also linked from the README. */
+export const DEFAULT_REPORT_URL = 'https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3';
 export const DEFAULT_REPO = 'Pereplut/dev-digest-ai-marketplace';
 
 /** Rough token estimate: ~4 characters per token for English Markdown. Labelled "est." in the UI. */
@@ -103,7 +105,7 @@ function stablePins(root) {
   return { name: stable.name, pins };
 }
 
-export function buildIndex(root, { siteUrl = DEFAULT_SITE_URL, repo = DEFAULT_REPO } = {}) {
+export function buildIndex(root, { siteUrl = DEFAULT_SITE_URL, repo = DEFAULT_REPO, reportUrl = DEFAULT_REPORT_URL } = {}) {
   root = resolve(root);
   const { marketplace, plugins } = loadMarketplace(root);
   const errors = consistencyErrors(plugins);
@@ -239,7 +241,7 @@ export function buildIndex(root, { siteUrl = DEFAULT_SITE_URL, repo = DEFAULT_RE
   const tagsSeen = [...new Set(pluginRows.flatMap((p) => p.tags))].sort();
   const index = {
     generatedAt: new Date().toISOString(),
-    marketplace: { name: marketplace.name, description: marketplace.description, owner: marketplace.owner, repo, siteUrl },
+    marketplace: { name: marketplace.name, description: marketplace.description, owner: marketplace.owner, repo, siteUrl, reportUrl },
     channels: { latest: marketplace.name, stable: stable.name },
     tags: tagsSeen,
     plugins: pluginRows,
@@ -288,6 +290,7 @@ export function catalogHtml(index) {
     <ul>
 ${items}
     </ul>
+    <p><a href="${esc(index.marketplace.reportUrl)}">Build report</a> · <a href="https://github.com/${esc(index.marketplace.repo)}">GitHub</a></p>
   </main>`;
 }
 

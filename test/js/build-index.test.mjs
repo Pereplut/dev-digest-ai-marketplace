@@ -120,6 +120,7 @@ test('stats: body tokens, discovery tokens, supporting files; manual skills cost
 test('no-JS catalog lists every plugin with its install command (AC-12)', () => {
   const { catalogHtml } = buildIndex(fixture());
   for (const n of ['base', 'app']) assert.ok(catalogHtml.includes(`/plugin install ${n}@mkt`), n);
+  assert.ok(catalogHtml.includes('<a href="https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3">Build report</a>'), 'build report link');
 });
 
 test('writeIndex writes every output file', () => {

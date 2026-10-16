@@ -49,7 +49,7 @@ export function fixtureCatalog(): Catalog {
   return {
     index: {
       generatedAt: '2026-10-16T00:00:00Z',
-      marketplace: { name: 'mkt', description: 'd', owner: { name: 'o' }, repo: 'owner/mkt', siteUrl: 'https://o.github.io/mkt/' },
+      marketplace: { name: 'mkt', description: 'd', owner: { name: 'o' }, repo: 'owner/mkt', siteUrl: 'https://o.github.io/mkt/', reportUrl: 'https://claude.ai/artifact/example' },
       channels: { latest: 'mkt', stable: null },
       tags: ['architecture', 'review'],
       plugins: [

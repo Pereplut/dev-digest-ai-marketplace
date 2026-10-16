@@ -60,7 +60,7 @@ export interface CompatRow {
 
 export interface Index {
   generatedAt: string;
-  marketplace: { name: string; description: string; owner: { name: string; url?: string }; repo: string; siteUrl: string };
+  marketplace: { name: string; description: string; owner: { name: string; url?: string }; repo: string; siteUrl: string; reportUrl: string };
   channels: { latest: string; stable: string | null };
   tags: string[];
   plugins: PluginRow[];

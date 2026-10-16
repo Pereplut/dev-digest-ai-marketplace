@@ -61,9 +61,6 @@ function ChannelToggle() {
   );
 }
 
-/** The project's build report (what was built, release rehearsal, eval results), also linked from the README. */
-const BUILD_REPORT_URL = 'https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3';
-
 function Shell({ route }: { route: Route }) {
   const { catalog } = useCatalog();
   const [open, setOpen] = useState(false);
@@ -89,7 +86,7 @@ function Shell({ route }: { route: Route }) {
         <a href={`https://github.com/${catalog.index.marketplace.repo}`} target="_blank" rel="noopener noreferrer">GitHub</a>
         <a href="./feed.xml">Atom feed</a>
         <a href={`https://github.com/${catalog.index.marketplace.repo}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener noreferrer">Contribute a plugin</a>
-        <a href={BUILD_REPORT_URL} target="_blank" rel="noopener noreferrer">Build report</a>
+        <a href={catalog.index.marketplace.reportUrl} target="_blank" rel="noopener noreferrer">Build report</a>
         <span className="muted">Built {catalog.index.generatedAt.slice(0, 10)}</span>
       </footer>
     </>
