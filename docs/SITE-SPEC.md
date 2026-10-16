@@ -30,13 +30,15 @@ operation.
   `COMPATIBILITY.md`, and every `skills/*/SKILL.md` and `agents/*.md` (frontmatter and body). It
   writes the following to `site/public/`:
   - `index.json`: plugins and artifacts (id, type, plugin, name, description, keywords, version, deps, tools, model, bodyPath)
+  - `search.json`: the search corpus (plain text of each README and body), so `index.json` stays small
   - `releases.json`: CHANGELOG sections parsed into `{plugin, version, date, notes}`
   - `stats.json`: per-artifact bytes and estimated tokens, plus per-plugin totals
   - `bodies/<id>.md`: raw Markdown bodies, loaded lazily
   - `feed.xml`: an Atom feed of releases
+  - `catalog.html`: the no-JS plugin list (AC-12), injected into `index.html` at build time
 - `site/` is built with Vite, React and TypeScript. It uses hash routing, MiniSearch for search,
   and marked followed by DOMPurify for Markdown.
-- Generated `site/public/*.json`, `bodies/`, `feed.xml` and `site/dist/` are never committed.
+- Generated `site/public/*.json`, `bodies/`, `feed.xml`, `catalog.html` and `site/dist/` are never committed.
 
 ## Routes
 | Route | Content |

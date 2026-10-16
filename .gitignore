@@ -4,6 +4,10 @@ site/public/index.json
 site/public/releases.json
 site/public/stats.json
 site/public/feed.xml
+site/public/search.json
+site/public/catalog.html
+site/test-results/
+site/playwright-report/
 site/public/bodies/
 **/evals/results/
 .sdd/

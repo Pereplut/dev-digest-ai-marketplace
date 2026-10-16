@@ -1,0 +1,34 @@
+{
+  "name": "dev-digest-ai-marketplace-site",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Static catalog for the dev-digest-ai-marketplace plugins (docs/SITE-SPEC.md).",
+  "scripts": {
+    "build:index": "node ../scripts/build-index.mjs --root .. --out public",
+    "dev": "npm run build:index && vite",
+    "build": "npm run build:index && tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "marked": "^18.1.1",
+    "minisearch": "^7.2.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^30.1.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  }
+}

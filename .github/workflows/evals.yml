@@ -1,0 +1,68 @@
+# Behaviour evals for a plugin (docs/COST-BASELINE.md). Manual only: every run spends API tokens.
+# Needs the repository secret ANTHROPIC_API_KEY.
+name: evals
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: Plugin directory under plugins/
+        default: sdd-engineering
+        required: true
+      case:
+        description: Case name glob (empty = all cases)
+        default: ''
+      runs:
+        description: Runs per case
+        default: '3'
+      max_cost_usd:
+        description: Hard cost ceiling for the whole run
+        default: '5'
+      model:
+        description: Model for the cases (empty = the CLI default)
+        default: ''
+
+permissions:
+  contents: read
+
+env:
+  CLAUDE_CODE_VERSION: 2.1.301
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Install Claude Code CLI
+        run: npm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+      - name: claude plugin eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PLUGIN: ${{ inputs.plugin }}
+          CASE: ${{ inputs.case }}
+          RUNS: ${{ inputs.runs }}
+          MAX_COST: ${{ inputs.max_cost_usd }}
+          MODEL: ${{ inputs.model }}
+        run: |
+          args=(--trust-plugin --no-publish --runs "$RUNS" --max-cost-usd "$MAX_COST" --json results.json --report report.html)
+          [[ -n "$CASE" ]] && args+=(--case "$CASE")
+          [[ -n "$MODEL" ]] && args+=(--model "$MODEL")
+          # Install from this checkout so dependencies resolve exactly as they do for users,
+          # then evaluate the installed plugin (eval resolves `plugin@marketplace` ids).
+          claude plugin marketplace add ./
+          mp=$(node -p 'require("./.claude-plugin/marketplace.json").name')
+          claude plugin install "$PLUGIN@$mp"
+          claude plugin list --json
+          claude plugin eval "$PLUGIN@$mp" --eval-dir evals "${args[@]}"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-${{ inputs.plugin }}-${{ github.run_number }}
+          path: |
+            results.json
+            report.html
+          retention-days: 30

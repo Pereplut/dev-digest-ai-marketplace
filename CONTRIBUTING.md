@@ -58,7 +58,16 @@ Components are public and must work in any repository.
 ```
 ./scripts/check.sh                 # validate (strict) + manifest consistency + portability lint + unit tests + index build
 claude --plugin-dir ./plugins/<name> [--plugin-dir ./plugins/<dep> ...]   # load locally and try it
-claude plugin eval --eval-dir plugins/<name>/evals                      # behaviour evals (costs tokens)
+claude plugin eval plugins/<name> --runs 3 --max-cost-usd 5           # behaviour evals in plugins/<name>/evals/ (costs tokens)
+```
+
+The catalog site rebuilds from the same files, so a plugin change can break it. To preview:
+
+```
+cd site && npm ci
+npm run dev          # regenerates site/public/ from the repo, then serves with hot reload
+npm test             # unit tests (search, sanitizing, snippet builder, graph)
+npm run build && npx playwright install chromium && npm run test:e2e   # smoke tests on the build
 ```
 
 ## 6. Pull request checklist
@@ -68,5 +77,5 @@ claude plugin eval --eval-dir plugins/<name>/evals                      # behavi
 - [ ] `CHANGELOG.md` has a section for that version.
 - [ ] `README.md` and `COMPATIBILITY.md` are updated if behaviour or requirements changed.
 - [ ] Behaviour change: an eval case was added or updated, and its result is in the PR description.
-- [ ] No generated files committed (`site/public/*.json`, `site/dist/`, `evals/results/`).
+- [ ] No generated files committed (`site/public/*.json`, `site/public/bodies/`, `site/dist/`, `evals/results/`).
 - [ ] CODEOWNERS for every touched plugin are requested as reviewers.
