@@ -1,0 +1,8 @@
+# Every path needs review from its owner (enable "Require review from Code Owners" in the branch ruleset).
+*                                   @Pereplut
+/plugins/engineering-paved-path/    @Pereplut
+/plugins/research-tools/            @Pereplut
+/plugins/architecture-review/       @Pereplut
+/plugins/sdd-engineering/           @Pereplut
+/channels/                          @Pereplut
+/.claude-plugin/                    @Pereplut

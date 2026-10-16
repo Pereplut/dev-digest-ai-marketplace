@@ -1,0 +1,10 @@
+{
+  "name": "engineering-paved-path",
+  "version": "1.0.0",
+  "description": "Paved-path engineering skills: onion / ports-and-adapters placement for backends, React and Next.js code organization, and OWASP-based web security review.",
+  "author": { "name": "Pereplut" },
+  "homepage": "https://pereplut.github.io/dev-digest-ai-marketplace/#/plugin/engineering-paved-path",
+  "repository": "https://github.com/Pereplut/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": ["architecture", "onion-architecture", "hexagonal", "ports-and-adapters", "react", "nextjs", "code-organization", "security", "owasp"]
+}

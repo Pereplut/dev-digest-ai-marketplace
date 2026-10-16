@@ -1,0 +1,13 @@
+node_modules/
+site/dist/
+site/public/index.json
+site/public/releases.json
+site/public/stats.json
+site/public/feed.xml
+site/public/bodies/
+**/evals/results/
+.sdd/
+__pycache__/
+*.pyc
+.tmp/
+.DS_Store

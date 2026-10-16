@@ -1,0 +1,15 @@
+{
+  "name": "sdd-engineering",
+  "version": "1.0.0",
+  "description": "Spec-Driven Development workflow for Claude Code: spec, plan, implement, verify, review — with a plan-verifier completeness gate and independent architecture review.",
+  "author": { "name": "Pereplut", "url": "https://github.com/Pereplut" },
+  "homepage": "https://pereplut.github.io/dev-digest-ai-marketplace/#/plugin/sdd-engineering",
+  "repository": "https://github.com/Pereplut/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": ["sdd", "spec-driven-development", "spec", "plan", "ears", "workflow", "agents"],
+  "dependencies": [
+    { "name": "engineering-paved-path", "version": "^1.0.0" },
+    { "name": "research-tools", "version": "^1.0.0" },
+    { "name": "architecture-review", "version": "^1.0.0" }
+  ]
+}

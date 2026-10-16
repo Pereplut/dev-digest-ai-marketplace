@@ -1,0 +1,13 @@
+{
+  "name": "architecture-review",
+  "version": "1.0.0",
+  "description": "A read-only architecture-reviewer agent that grades a diff against layering and boundary rules (onion rings, ports and adapters, frontend import direction, repo-local boundary configs) and reports CRITICAL / WARNING / SUGGESTION findings with evidence.",
+  "author": { "name": "Pereplut" },
+  "homepage": "https://pereplut.github.io/dev-digest-ai-marketplace/#/plugin/architecture-review",
+  "repository": "https://github.com/Pereplut/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": ["architecture", "code-review", "layering", "boundaries", "dependency-cruiser", "onion-architecture", "agent"],
+  "dependencies": [
+    { "name": "engineering-paved-path", "version": "^1.0.0" }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "research-tools",
+  "version": "1.0.0",
+  "description": "A read-only researcher agent for repo research (how the codebase works, where things live, why they changed) and external research (upstream docs, changelogs, standards), with evidence tables and an explicit Not found section.",
+  "author": { "name": "Pereplut" },
+  "homepage": "https://pereplut.github.io/dev-digest-ai-marketplace/#/plugin/research-tools",
+  "repository": "https://github.com/Pereplut/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": ["research", "codebase-research", "documentation", "read-only", "agent", "evidence"]
+}
