@@ -48,7 +48,7 @@ echo "  git push -u origin $BRANCH"
 echo
 PLUGIN="$(read -r P _ <<<"${PAIRS[-1]}"; echo "$P")"
 echo "After merge, users move to the stable channel with the steps in docs/RELEASES.md#rollback:"
-echo "disable all four latest-channel entries (the plugin and its dependencies), then"
+echo "disable all four latest-channel entries, dependents first (sdd-engineering, architecture-review, research-tools, engineering-paved-path), then"
 echo "  claude plugin marketplace add https://raw.githubusercontent.com/Pereplut/dev-digest-ai-marketplace/main/channels/stable/.claude-plugin/marketplace.json --scope project"
 echo "  claude plugin install $PLUGIN@dev-digest-ai-marketplace-stable --scope project"
 echo "  claude plugin list --json   # check, then /reload-plugins and a short workflow"

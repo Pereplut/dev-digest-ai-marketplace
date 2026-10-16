@@ -62,6 +62,18 @@ skipped the spec and exited 0. `Read(~/.claude/plugins/cache/dev-digest-ai-marke
 `permissions.allow` fixes the read (verified). Anything a skill must not miss belongs in the
 `SKILL.md` body, which loads without a read.
 
+### Plugin CLI: dependents block disabling, `update` can downgrade, `prune` needs `-y` headless
+**Date:** 2026-10-16
+**Evidence:** `docs/RELEASES.md` (Rollback, Rehearsal log); Claude Code 2.1.301
+- `claude plugin disable <dep>` refuses while an enabled plugin still depends on it. Disable dependents
+  first, and enable dependencies first.
+- After a channel's pin moves back, `marketplace update` + `plugin update` installs the *older* version
+  ("updated from 1.1.0 to 1.0.0"). A stable-channel rollback needs no reinstall.
+- `claude plugin prune` asks for confirmation and, outside a TTY, only lists what it would remove;
+  pass `-y`. `marketplace remove` also uninstalls that marketplace's leftover plugins.
+- `claude plugin validate` accepts a channel whose plugins' dependencies are not in it. Only an install
+  shows the problem, so `scripts/check-stable-deps.mjs` checks it.
+
 ### npm and Playwright downloads fail on this WSL host with TLS record errors; retry with one socket
 **Date:** 2026-10-16
 **Evidence:** `site/package-lock.json` (created after retries)
