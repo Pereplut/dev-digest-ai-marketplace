@@ -60,13 +60,10 @@ jobs:
           [[ -n "$CASE" ]] && args+=(--case "$CASE")
           [[ -n "$TAG" ]] && args+=(--tag "$TAG")
           [[ -n "$MODEL" ]] && args+=(--model "$MODEL")
-          # Install from this checkout so dependencies resolve exactly as they do for users,
-          # then evaluate the installed plugin (eval resolves `plugin@marketplace` ids).
-          claude plugin marketplace add ./
-          mp=$(node -p 'require("./.claude-plugin/marketplace.json").name')
-          claude plugin install "$PLUGIN@$mp"
-          claude plugin list --json
-          claude plugin eval "$PLUGIN@$mp" --eval-dir evals "${args[@]}"
+          # Run from the marketplace root. Each case lists the plugin and its dependencies in `plugins:`,
+          # and the eval only loads plugin dirs under the directory it was given; with the plugin dir as
+          # the target, the sibling dependencies are refused (INSIGHTS.md, docs/COST-BASELINE.md).
+          claude plugin eval . --eval-dir "plugins/$PLUGIN/evals" "${args[@]}"
       - if: always()
         uses: actions/upload-artifact@v4
         with:

@@ -46,16 +46,23 @@ documented grader schema, because the CLI does not check graders when it loads a
 The whole suite needs an API credential and spends tokens. Run a subset first.
 
 ```
-# Local, cheap first: the negative cases, one run each, no baseline arm
-claude plugin marketplace add ./
-claude plugin install sdd-engineering@dev-digest-ai-marketplace
-claude plugin eval sdd-engineering@dev-digest-ai-marketplace --eval-dir evals \
+# From the marketplace root. Cheap first: the negative cases, one run each, no baseline arm
+claude plugin eval . --eval-dir plugins/sdd-engineering/evals \
   --tag negative --runs 1 --ablation none --scaffold --trust-plugin --max-cost-usd 2 --no-publish
 
 # Baseline: every case, default runs, with the no-plugin arm, one fixed model
-claude plugin eval sdd-engineering@dev-digest-ai-marketplace --eval-dir evals \
+claude plugin eval . --eval-dir plugins/sdd-engineering/evals \
   --model <model> --scaffold --trust-plugin --max-cost-usd 25 --json baseline.json --no-publish
 ```
+
+**Why the root, and why `plugins:` in every case.** The eval loads only the plugin directories a
+case lists in `plugins:`, and it refuses any of them that sit outside the directory it was given.
+Run against `plugins/sdd-engineering` (or the installed `sdd-engineering@dev-digest-ai-marketplace`,
+which the eval reads from the same folder), it loads the plugin alone as `sdd-engineering@inline`.
+That copy is then rejected as `dependency-unsatisfied`, and the run goes on with **no plugin
+loaded**. Negative cases still pass, for the wrong reason: the first run on 2026-10-16 scored
+2/4 that way. So each `case.yaml` lists the plugin and its three dependencies, and the command
+targets the marketplace root. `scripts/check-evals.mjs` fails a case that omits a dependency.
 
 In CI, use the `evals` workflow (Actions → evals → Run workflow). It is manual-only, takes a case
 glob, a tag, runs, model and a cost ceiling, and uploads `results.json` and `report.html`. It needs
@@ -64,7 +71,8 @@ the `ANTHROPIC_API_KEY` repository secret. Cases that grant `Bash` need the OS s
 
 ## Baseline
 
-**Not measured yet.** Fill in this table from the first full run.
+**Not measured yet.** Fill in this table from the first full run. Smoke runs so far are under
+[Runs](#runs).
 
 | Field | Value |
 |---|---|
@@ -88,6 +96,26 @@ Per case:
 |---|---|---|---|---|---|
 | (from `aggregate-result.json`) | | | | | |
 
+## Runs
+
+Every run is listed, including the ones that measured nothing, so the cost of getting the suite
+working is on record. All on Claude Code 2.1.301, the CLI default model (`claude-opus-5-5`), with a Haiku judge.
+
+| Date | Commit | Scope | Result | Cost | Wall time | Notes |
+|---|---|---|---|---|---|---|
+| 2026-10-16 | `de2fbac` | `--tag negative --runs 1 --ablation none`, installed-plugin target | 2/4 (score 0.69) | $0.32 | 69 s | **Invalid.** `sdd-engineering@inline` rejected as `dependency-unsatisfied`; no plugin was loaded. The two passes are the bare model. |
+| 2026-10-16 | `de2fbac` + `plugins:` | same, plugin-dir target | 0 cases loaded | $0 | 0 s | Refused: `plugins` entries outside the containment root `plugins/sdd-engineering`. |
+| 2026-10-16 | `de2fbac` + `plugins:` | same, marketplace-root target | **4/4** (score 1.0) | $0.66 | 122 s | All 4 plugins loaded, no `plugin_errors`; 8 agents, 7 skills namespaced. |
+
+Per case, last row (one run each, so no median yet):
+
+| Case | Score | Cost | Turns | What the trace showed |
+|---|---|---|---|---|
+| `planner-refuses-draft-spec` | 1.0 | $0.221 | 2 | Dispatched `sdd-engineering:implementation-planner`, which stopped on `status: draft` |
+| `retro-not-auto` | 1.0 | $0.123 | 8 | Answered from `.sdd/retro/*.runs.jsonl`; `workflow-retro` not invoked |
+| `spec-and-plan-locations` | 1.0 | $0.249 | 14 | `/sdd-engineering:run-plan 0001` ran the skill (it read `references/*.md`), found no plan, named `.sdd/specs-0001-orders-csv-export.plan.md` |
+| `unrelated-request` | 1.0 | $0.067 | 1 | Answered directly; no Agent or Skill call |
+
 ## Optimization log
 
 One change at a time, measured on the same cases, model and runs as the baseline. If the change is
@@ -99,15 +127,20 @@ within run-to-run noise, the result is recorded as "within noise".
 
 ## Known gaps
 
-These were not verifiable from the documentation. The first run settles them; record what it shows
-here.
+Settled by the 2026-10-16 negative run (traces kept with `--keep-temp`):
 
-- **Agent dispatch matching.** The docs show `input_match` only for `Skill`. The `Agent` graders
-  assume the tool input is JSON containing `"subagent_type": "<plugin>:<agent>"`.
-- **Manual-only skills from a prompt.** `run-plan` is `disable-model-invocation: true`. The run-plan
-  cases start their prompt with `/sdd-engineering:run-plan`, which assumes the slash command expands
-  in an eval run.
-- **`regex` on a file.** `target: {source: file, path: ...}` is assumed to be relative to the
-  workspace root, and a missing file is assumed to fail the grader.
+- **Agent dispatch matching: works.** The trace's tool list names the tool `Task`, but the `tool_used`
+  grader matches `tool: Agent`. Its JSON input carries `"subagent_type": "sdd-engineering:implementation-planner"`,
+  so the `input_match` patterns hold.
+- **Manual-only skills from a prompt: work.** A prompt that starts with `/sdd-engineering:run-plan` expands
+  into the skill even though it is `disable-model-invocation: true`.
+- **`regex` on a file: the path is relative to the workspace root.** Whether a *missing* file fails the
+  grader is still unverified.
+- **Dependencies: not loaded unless listed.** See [How to run](#how-to-run).
+
+Still open:
+
 - **Unattended run-plan.** `run-plan` normally asks the user to confirm the execution mode. The
-  heavy cases state the mode in the prompt and tell it to take the documented defaults.
+  heavy cases state the mode in the prompt and tell it to take the documented defaults. Not run yet.
+- **Baseline arm from a root target.** With `.` as the target, the suite resolved all four plugins. Whether the
+  default `--ablation with-without` then adds the no-plugin arm shows on the first baseline run.

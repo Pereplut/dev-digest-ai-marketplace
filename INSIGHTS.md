@@ -16,15 +16,18 @@ line (`type: system, subtype: init`) lists `plugins`, `agents` and `skills` with
 components load without a full eval run. On 2.1.301 it showed all 8 agents and 7 skills as `<plugin>:<name>`.
 Skills with `disable-model-invocation: true` still appear in `skills` and `slash_commands`.
 
-### `claude plugin eval` has no `--plugin-dir`; evaluate the installed plugin to get its dependencies
+### `claude plugin eval` loads a plugin without its dependencies; list them in `plugins:` and run from the root
 **Date:** 2026-10-16
-**Evidence:** `.github/workflows/evals.yml` (eval step); `claude plugin eval --help` on 2.1.301
-The eval subcommand takes a path, a plugin name or a `plugin@marketplace` id. It has no flag for loading
-sibling plugin directories. `claude plugin eval plugins/sdd-engineering` therefore runs without
-`engineering-paved-path`, `research-tools` and `architecture-review`, and every namespaced reference to them
-misses. Instead, add this checkout with `claude plugin marketplace add ./`, install the plugin (its
-dependencies install with it), then run `claude plugin eval sdd-engineering@dev-digest-ai-marketplace`.
-`--eval-dir` is a folder name *below* the plugin, not a path.
+**Evidence:** `plugins/sdd-engineering/evals/*/case.yaml` (`plugins:`); `scripts/check-evals.mjs` (`loadedPlugins`);
+`docs/COST-BASELINE.md` (Runs)
+The eval loads only the plugin directories a case lists in `plugins:`, defaulting to the enclosing
+plugin, as `<name>@inline`. Installing first does not help, because an installed target is read from the same
+folder. Without its dependencies, `sdd-engineering@inline` is rejected (`plugin_errors: dependency-unsatisfied`
+in the trace's init line) and **the run continues with no plugin**. Negative cases then pass for the wrong
+reason. Listing the sibling dirs (`"../../../engineering-paved-path"`) is refused when the target is the
+plugin dir, because they are outside its containment root. Target the marketplace root instead:
+`claude plugin eval . --eval-dir plugins/sdd-engineering/evals`. `--eval-dir` takes a relative path,
+not only a folder name. Always check the init line's `plugin_errors` before trusting a pass.
 
 ### npm and Playwright downloads fail on this WSL host with TLS record errors; retry with one socket
 **Date:** 2026-10-16

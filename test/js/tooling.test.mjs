@@ -10,6 +10,7 @@ import { lint } from '../../scripts/lint-portability.mjs';
 import { check } from '../../scripts/check-manifests.mjs';
 import { pin } from '../../scripts/pin-stable.mjs';
 import { unmet } from '../../scripts/check-deps-released.mjs';
+import { checkSuite } from '../../scripts/check-evals.mjs';
 
 function put(root, rel, content) {
   const p = join(root, rel);
@@ -142,4 +143,17 @@ test('build-eval-fixtures: scaffold writes base + overlays, commits, then applie
   assert.equal(execFileSync('git', ['status', '--porcelain'], { cwd: ws, encoding: 'utf8' }).trim(), 'M dir/b.txt');
   assert.equal(execFileSync('git', ['show', 'HEAD:dir/b.txt'], { cwd: ws, encoding: 'utf8' }), 'b\n');
   assert.throws(() => renderScaffold(fx, { fixture: 'missing' }, 'c'), /not found/);
+});
+
+test('check-evals: every case must load the plugin and its dependencies', () => {
+  const root = fixture();
+  const grader = '---\ntype: regex\npattern: ok\n---\n';
+  put(root, 'plugins/app/evals/good/prompt.md', '---\nplugins: ["../..", "../../../base"]\n---\nDo it.\n');
+  put(root, 'plugins/app/evals/good/graders/g.md', grader);
+  put(root, 'plugins/app/evals/no-dep/case.yaml', 'schema_version: "1.1"\nname: no-dep\nplugins: ["../.."]\n');
+  put(root, 'plugins/app/evals/no-dep/prompt.md', 'Do it.\n');
+  put(root, 'plugins/app/evals/no-dep/graders/g.md', grader);
+  const { errors } = checkSuite(join(root, 'plugins/app/evals'), ['base']);
+  assert.deepEqual(errors, ['no-dep: plugins: does not list dependency base (the plugin would be rejected as dependency-unsatisfied)']);
+  assert.deepEqual(checkSuite(join(root, 'plugins/app/evals')).errors, [], 'no dependencies: nothing to check');
 });

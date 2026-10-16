@@ -137,3 +137,4 @@ name wherever the field expects a plugin-scoped reference.
 | Planning | 2026-10-16 | Spec written; approved by owner 2026-10-16 |
 | Implementation | 2026-10-16 | Extraction done: 4 plugins (8 agents, 7 skills, 3 scripts); repo docs and tooling; check.sh green; local --plugin-dir load verified. Next: site, CI, evals |
 | Implementation | 2026-10-16 | Catalog site and CI pushed; validate (incl. Playwright 15/15) green on GitHub. Eval suite written: 10 cases in `plugins/sdd-engineering/evals/`, linted by `scripts/check-evals.mjs`; not yet run (costs tokens) |
+| Validation | 2026-10-16 | First eval runs (negative tag, 1 run). The first was invalid: dependencies were not loaded, so no plugin ran. Fixed with `plugins:` per case, run from the marketplace root, and a check-evals rule. Then 4/4 for $0.66 (docs/COST-BASELINE.md, Runs). Baseline (N=3, all cases) not run yet |

@@ -58,7 +58,7 @@ Components are public and must work in any repository.
 ```
 ./scripts/check.sh                 # validate (strict) + manifest consistency + portability lint + unit tests + index build
 claude --plugin-dir ./plugins/<name> [--plugin-dir ./plugins/<dep> ...]   # load locally and try it
-claude plugin eval plugins/<name> --runs 3 --max-cost-usd 5           # behaviour evals in plugins/<name>/evals/ (costs tokens)
+claude plugin eval . --eval-dir plugins/<name>/evals --scaffold --max-cost-usd 5   # behaviour evals, from the root (costs tokens; see docs/COST-BASELINE.md)
 ```
 
 The catalog site rebuilds from the same files, so a plugin change can break it. To preview:

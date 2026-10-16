@@ -4,6 +4,11 @@
 // suite, but on 2.1.301 a grader with an unknown `type` loads silently and only fails mid-run, after
 // tokens are spent. This catches that for free.
 //
+// It also checks that every case loads the plugin's dependencies. The eval loads only the plugin dirs a
+// case lists in `plugins:`, and a plugin whose dependencies are missing is rejected as
+// dependency-unsatisfied. The run then goes on with no plugin, and every negative case passes for
+// the wrong reason (docs/COST-BASELINE.md, Known gaps).
+//
 //   node scripts/check-evals.mjs [--root <dir>]
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
@@ -20,8 +25,9 @@ const GRADER_KEYS = {
   baseline: ['baseline_file', 'criteria'],
 };
 
-export function checkSuite(evalsDir) {
+export function checkSuite(evalsDir, deps = []) {
   const errors = [];
+  const pluginDir = resolve(evalsDir, '..');
   const caseDirs = readdirSync(evalsDir, { withFileTypes: true })
     .filter((d) => d.isDirectory() && d.name !== 'fixtures' && d.name !== 'results' && d.name !== 'mocks')
     .map((d) => join(evalsDir, d.name));
@@ -38,6 +44,14 @@ export function checkSuite(evalsDir) {
     if (existsSync(caseYaml)) {
       const m = /scaffold_script:\s*(\S+)/.exec(readFileSync(caseYaml, 'utf8'));
       if (m && !existsSync(join(dir, m[1]))) errors.push(`${name}/case.yaml: scaffold_script ${m[1]} does not exist`);
+    }
+    if (deps.length) {
+      const listed = loadedPlugins(dir, prompt, caseYaml);
+      const names = listed.map((p) => resolve(dir, p));
+      if (!names.includes(pluginDir)) errors.push(`${name}: plugins: does not list the plugin under test (${relative(dir, pluginDir)})`);
+      for (const d of deps) {
+        if (!names.includes(resolve(pluginDir, '..', d))) errors.push(`${name}: plugins: does not list dependency ${d} (the plugin would be rejected as dependency-unsatisfied)`);
+      }
     }
     const gdir = join(dir, 'graders');
     const graders = existsSync(gdir) ? readdirSync(gdir).filter((f) => f.endsWith('.md')) : [];
@@ -61,6 +75,16 @@ export function checkSuite(evalsDir) {
   return { errors, cases: caseDirs.length };
 }
 
+// `plugins:` from prompt.md frontmatter (which wins) or case.yaml, as an inline list.
+function loadedPlugins(dir, prompt, caseYaml) {
+  for (const f of [prompt, caseYaml]) {
+    if (!existsSync(f)) continue;
+    const m = /^plugins:\s*\[(.*)\]\s*$/m.exec(readFileSync(f, 'utf8'));
+    if (m) return m[1].split(',').map((x) => x.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+  }
+  return [];
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   const i = process.argv.indexOf('--root');
   const root = resolve(i > 0 ? process.argv[i + 1] : process.cwd());
@@ -69,7 +93,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   for (const p of readdirSync(join(root, 'plugins'))) {
     const dir = join(root, 'plugins', p, 'evals');
     if (!existsSync(dir)) continue;
-    const r = checkSuite(dir);
+    const manifest = JSON.parse(readFileSync(join(root, 'plugins', p, '.claude-plugin', 'plugin.json'), 'utf8'));
+    const deps = (manifest.dependencies ?? []).map((d) => (typeof d === 'string' ? d : d.name));
+    const r = checkSuite(dir, deps);
     errors = errors.concat(r.errors.map((e) => `plugins/${p}/evals/${e}`));
     cases += r.cases;
   }
