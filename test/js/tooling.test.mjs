@@ -176,3 +176,14 @@ test('eval-usage: sums modelUsage over models, counts tool calls, marks a missin
   assert.equal(row.output, 30);
   assert.equal(row.cost, 0.30000000000000004);
 });
+
+test('check-stable-deps: every dependency pinned in range, read from the pinned commit', async () => {
+  const { checkStable } = await import('../../scripts/check-stable-deps.mjs');
+  const entry = (name, v) => ({ name, source: { source: 'git-subdir', path: `plugins/${name}`, ref: `${name}--v${v}`, sha: 'a'.repeat(40) } });
+  const manifests = { app: { dependencies: [{ name: 'base', version: '^1.0.0' }] }, base: {} };
+  const read = (sha, path) => manifests[path.split('/')[1]];
+  assert.deepEqual(checkStable({ plugins: [entry('base', '1.2.0'), entry('app', '1.0.0')] }, read), []);
+  assert.deepEqual(checkStable({ plugins: [entry('app', '1.0.0')] }, read), ['app 1.0.0 needs base ^1.0.0, which the stable channel does not pin']);
+  assert.deepEqual(checkStable({ plugins: [entry('base', '2.0.0'), entry('app', '1.0.0')] }, read), ['app 1.0.0 needs base ^1.0.0; stable pins 2.0.0']);
+  assert.match(checkStable({ plugins: [{ name: 'x', source: './plugins/x' }] }, read)[0], /not pinned/);
+});

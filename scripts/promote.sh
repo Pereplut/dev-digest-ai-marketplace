@@ -34,6 +34,12 @@ for pair in "${PAIRS[@]}"; do
   SUMMARY+=("$P $V (${SHA:0:12})")
 done
 if command -v claude >/dev/null; then claude plugin validate channels/stable || die "stable channel does not validate"; fi
+if ! node scripts/check-stable-deps.mjs; then
+  # Discard the rejected pin (absent from HEAD on a first promotion), then drop the branch.
+  git restore --source=HEAD --worktree -- channels/stable 2>/dev/null || rm -f channels/stable/.claude-plugin/marketplace.json
+  git switch -q - && git branch -D "$BRANCH" >/dev/null
+  die "stable channel would not install (a pinned plugin is missing a dependency); pin the dependencies in the same call"
+fi
 git add channels/stable/.claude-plugin/marketplace.json
 git commit -m "chore(channel): $ACTION stable: $(IFS=,; echo "${SUMMARY[*]}" | sed 's/,/, /g')"
 echo
