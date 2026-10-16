@@ -25,6 +25,9 @@ as code that will be executed or followed.
   Restrict `Bash` with project permission rules if your threat model needs it. Plugins cannot ship
   `permissions`.
 
+The [build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) lists the prompt-only boundary
+among the project's known gaps.
+
 ## Untrusted content
 
 - The catalog site renders README, CHANGELOG and component Markdown through marked followed by
