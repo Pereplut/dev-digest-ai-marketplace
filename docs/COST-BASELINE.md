@@ -114,8 +114,8 @@ Per case. The scores come from `aggregate-result.json`: six cases from the 8-cas
 | `unrelated-request` | 1.00 | 1.00 | 0 | 3/3 | $0.069 / $0.044 | 8 | — |
 | `spec-and-plan-locations` | 1.00 | 0.20 | +0.80 | 3/3 | $0.244 / $0.286 | 27 | — |
 | `spec-creator-writes-spec-only` | 0.88 | 0.29 | +0.58 | 2/3 | $0.499 / $0.061 | 152 | 1 run: no `Write boundary:` line in the report, and `spec-quality` FAIL |
-| `run-plan-gate-order` | — | — | — | — | — | — | not run (needs Bash) |
-| `run-plan-optional-stages` | — | — | — | — | — | — | not run (needs Bash) |
+| `run-plan-gate-order` | — | — | — | — | — | — | skipped by owner decision (needs Bash; the local sandbox refuses) |
+| `run-plan-optional-stages` | — | — | — | — | — | — | skipped by owner decision (same) |
 
 Tokens and tool calls (`node scripts/eval-usage.mjs`, medians from kept traces, subagents included):
 
@@ -242,8 +242,10 @@ Still open:
   docs/RELEASES.md), `/sdd-engineering:run-plan 0001` with the mode stated in the prompt ran to `done`
   unattended: implementer, plan-verifier, architecture-reviewer with `/code-review`, 2 fix rounds, final
   verifier, doc-writer, insights. It cost $3.03, made 4 commits, and passed 16/16 tests. The eval cases still have to confirm it under the sandbox.
-- **Heavy cases.** `run-plan-gate-order` and `run-plan-optional-stages` need `Bash`. Run them in CI
-  (`evals` workflow, tag `heavy`), then add them to the baseline.
+- **Heavy cases: skipped (owner decision, 2026-10-16).** `run-plan-gate-order` and `run-plan-optional-stages`
+  stay in the suite and run in CI with `--tag heavy` once `ANTHROPIC_API_KEY` is set. They are not in the
+  baseline. The real headless run in Phase 7 showed the default gate order and stages, but nothing has
+  exercised `--tests` or `--no-docs`.
 
 Settled by the baseline: a marketplace-root target with `--ablation with-without` does run the
 no-plugin arm. The plugin's agents are then absent ("Agent type … not found"). `--case` takes a
