@@ -3,6 +3,10 @@
 This guide is meant to let you prepare a pull request without asking anyone where files go or
 what to run.
 
+For how the existing plugins were built, released and measured, read the
+[build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3). Its figures come from
+[docs/COST-BASELINE.md](docs/COST-BASELINE.md) and [docs/RELEASES.md](docs/RELEASES.md).
+
 ## 1. Plugin layout
 
 ```
