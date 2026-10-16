@@ -60,3 +60,9 @@ skill-CRITICAL rule that does not meet the rubric becomes `WARNING`.
 - Import-graph tools cannot see logic placed in the wrong layer without a forbidden import; those
   findings rest on reading the code and are capped at `WARNING`.
 - It is not a merge gate by itself and does not write any gate state.
+
+## Project
+
+Part of [dev-digest-ai-marketplace](https://github.com/Pereplut/dev-digest-ai-marketplace). The
+[build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) covers how the plugins were built, released and
+measured.

@@ -81,3 +81,9 @@ answering from a search snippet or from memory.
 - Budget is about 25 tool calls per run; larger questions come back partial, with the rest listed as
   inconclusive.
 - It never edits, commits or implements anything.
+
+## Project
+
+Part of [dev-digest-ai-marketplace](https://github.com/Pereplut/dev-digest-ai-marketplace). The
+[build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) covers how the plugins were built, released and
+measured.

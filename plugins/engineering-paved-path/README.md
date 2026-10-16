@@ -63,3 +63,9 @@ All three skills were originally authored as project-local skills and generalize
 marketplace. Their research sources are kept in each skill: `onion-architecture/README.md`,
 `react-code-organization/README.md`, `security/references.md` (OWASP and the community security
 skills it draws on).
+
+## Project
+
+Part of [dev-digest-ai-marketplace](https://github.com/Pereplut/dev-digest-ai-marketplace). The
+[build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) covers how the plugins were built, released and
+measured.

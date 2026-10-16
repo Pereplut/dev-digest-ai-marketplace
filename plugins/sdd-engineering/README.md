@@ -188,3 +188,9 @@ the measured costs are in
 
 [docs/agents-notes.md](docs/agents-notes.md) records the judgement calls made when generalizing
 each agent, and what each one expects from the target repository.
+
+## Project
+
+Part of [dev-digest-ai-marketplace](https://github.com/Pereplut/dev-digest-ai-marketplace). The
+[build report](https://claude.ai/artifact/C3uAY823HPG4uM1xUxLYb3) covers how the plugins were built, released and
+measured.
